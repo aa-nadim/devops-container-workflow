@@ -11,6 +11,7 @@ services:
     restart: always
 
   flask-app:
+    image: flask-app
     container_name: flask-app
     build:
       context: .
