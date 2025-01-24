@@ -1,11 +1,12 @@
 services:
   jenkins:
-    image: jenkins/jenkins:lts
+    build: 
+      context: .
+      dockerfile: jenkins-dockerfile
     container_name: jenkins
     ports:
       - "8080:8080"
       - "50000:50000"
-    user: root  # Run Jenkins as root to access Docker socket
     volumes:
       - jenkins_home:/var/jenkins_home
       - /var/run/docker.sock:/var/run/docker.sock

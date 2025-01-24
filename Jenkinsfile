@@ -4,35 +4,18 @@ pipeline {
     environment {
         DOCKER_IMAGE = 'flask-app'
         CONTAINER_NAME = 'flask-app'
-        GITHUB_REPO_URL = 'https://github.com/aa-nadim/devops-container-workflow.git'
     }
     
     stages {
         stage('Checkout') {
             steps {
-                script {
-                    try {
-                        git branch: 'main', 
-                            url: "${GITHUB_REPO_URL}",
-                            credentialsId: 'your-github-credentials-id'
-                        echo "Repository cloned successfully"
-                    } catch (Exception e) {
-                        error "Failed to clone repository: ${e.message}"
-                    }
-                }
+                git branch: 'main', url: 'https://github.com/aa-nadim/devops-container-workflow.git'
             }
         }
         
         stage('Build Docker Image') {
             steps {
-                script {
-                    try {
-                        sh "docker build --no-cache -t ${DOCKER_IMAGE} ."
-                        echo "Docker image built successfully"
-                    } catch (Exception e) {
-                        error "Docker image build failed: ${e.message}"
-                    }
-                }
+                sh 'docker build -t ${DOCKER_IMAGE} .'
             }
         }
         
@@ -49,48 +32,24 @@ pipeline {
         
         stage('Run Flask App') {
             steps {
-                script {
-                    try {
-                        sh """
-                            docker run -d \
-                            -p 5000:5000 \
-                            --name ${CONTAINER_NAME} \
-                            ${DOCKER_IMAGE}
-                        """
-                        echo "Flask application deployed successfully"
-                    } catch (Exception e) {
-                        error "Flask application deployment failed: ${e.message}"
-                    }
-                }
+                sh """
+                    docker run -d \
+                    -p 5000:5000 \
+                    --name ${CONTAINER_NAME} \
+                    ${DOCKER_IMAGE}
+                """
             }
         }
         
         stage('Health Check') {
             steps {
                 script {
-                    try {
-                        sh """
-                            sleep 10
-                            curl -f http://localhost:5000
-                        """
-                        echo "Application health check passed"
-                    } catch (Exception e) {
-                        error "Health check failed: ${e.message}"
-                    }
+                    sh """
+                        sleep 10
+                        curl -f http://localhost:5000
+                    """
                 }
             }
-        }
-    }
-    
-    post {
-        success {
-            echo 'Pipeline completed successfully!'
-        }
-        failure {
-            echo 'Pipeline failed. Check the logs for details.'
-        }
-        always {
-            echo 'Pipeline execution completed.'
         }
     }
 }
