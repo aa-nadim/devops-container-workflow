@@ -8,13 +8,17 @@ pipeline {
         }
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t flask-app .'
+                sh 'docker build --no-cache -t flask-app .'
             }
         }
-        stage('Run Application') {
+        stage('Run Flask App') {
             steps {
-                sh 'docker run -d -p 5000:5000 flask-app'
+                sh '''
+                docker rm -f flask-app || true
+                docker run -d -p 5000:5000 --name flask-app flask-app
+                '''
             }
         }
     }
 }
+
